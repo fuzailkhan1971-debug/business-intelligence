@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Analytic AI Dashboard</title>
+  <link rel="stylesheet" href="css1.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <h1 class="brand-title">Analytic AI</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <p class="nav-label">Sources</p>
+        <div class="nav-item active">
+          <span class="nav-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+            </svg>
+          </span>
+          <div class="nav-item-content">
+            <span class="nav-item-name">Database</span>
+            <span class="nav-item-meta">amazon_sales.csv</span>
+          </div>
+          <span class="nav-item-badge">●</span>
+        </div>
+
+
+      </nav>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-status">
+        <span class="status-dot"></span>
+        <span class="status-text">Connected</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h2 class="topbar-title">Business Intelligence</h2>
+        <span class="topbar-subtitle">Amazon Sales · Live Query</span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-tag">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          Real-time
+        </div>
+        <button class="topbar-collapse" onclick="collapseFocus()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="18 15 12 9 6 15"/>
+          </svg>
+          Back to Dashboard
+        </button>
+      </div>
+    </header>
+
+    <!-- Stat Cards -->
+    <section class="stats-row">
+      <div class="stat-card">
+        <span class="stat-label">Total Revenue</span>
+        <span class="stat-value">₹4.82M</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Orders</span>
+        <span class="stat-value">38,291</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Avg. Order Value</span>
+        <span class="stat-value">₹125.80</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Top Category</span>
+        <span class="stat-value">Electronics</span>
+        <span class="stat-change neutral">→ Stable</span>
+      </div>
+    </section>
+
+    <!-- Chart placeholder area -->
+    <section class="chart-area">
+      <div class="chart-card wide">
+        <div class="chart-header">
+          <span class="chart-title">Revenue by Category</span>
+          <span class="chart-tag">SQL · GROUP BY</span>
+        </div>
+        <div class="chart-body">
+          <div class="bar-group">
+            <div class="bar-item"><div class="bar" style="height:78%;background:var(--accent);"></div><span>Electronics</span></div>
+            <div class="bar-item"><div class="bar" style="height:54%;background:#5BB8F5;"></div><span>Clothing</span></div>
+            <div class="bar-item"><div class="bar" style="height:62%;background:#3DCCC7;"></div><span>Home</span></div>
+            <div class="bar-item"><div class="bar" style="height:40%;background:#89D4F5;"></div><span>Sports</span></div>
+            <div class="bar-item"><div class="bar" style="height:33%;background:#B8E8FC;"></div><span>Books</span></div>
+          </div>
+        </div>
+      </div>
+
+
+    </section>
+
+    <!-- Chatbox -->
+    <div class="chatbox-wrapper">
+      <div class="chat-history" id="chatHistory">
+        <div class="chat-msg ai">
+          <span class="chat-avatar">AI</span>
+          <div class="chat-bubble">Ask me anything about your <strong>amazon_sales.csv</strong> data — revenue, categories, trends, or custom SQL queries.</div>
+        </div>
+      </div>
+      <div class="chatbox">
+        <div class="chat-input-row">
+          <span class="chat-prefix">→</span>
+          <input
+            type="text"
+            id="chatInput"
+            class="chat-input"
+            placeholder="Ask a question or run a query on amazon_sales.csv…"
+            autocomplete="off"
+          />
+          <button class="chat-send" id="sendBtn" onclick="sendMessage()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+        <div class="chat-hints">
+          <span onclick="fillHint(this)">Top 5 products by revenue</span>
+          <span onclick="fillHint(this)">Sales by category</span>
+          <span onclick="fillHint(this)">Monthly trend</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const main       = document.querySelector('.main');
+    const statsRow   = document.querySelector('.stats-row');
+    const chartArea  = document.querySelector('.chart-area');
+    let focused = false;
+
+    function enterFocus() {
+      if (focused) return;
+      focused = true;
+      // Remove any slide-back classes first
+      statsRow.classList.remove('slide-back');
+      chartArea.classList.remove('slide-back');
+      // Trigger reflow so animation restarts cleanly
+      void statsRow.offsetWidth;
+      main.classList.add('chat-focused');
+    }
+
+    function collapseFocus() {
+      if (!focused) return;
+      focused = false;
+      main.classList.remove('chat-focused');
+      // Add slide-back animation
+      statsRow.classList.add('slide-back');
+      chartArea.classList.add('slide-back');
+      // Clean up after animation
+      statsRow.addEventListener('animationend', () => statsRow.classList.remove('slide-back'), { once: true });
+      chartArea.addEventListener('animationend', () => chartArea.classList.remove('slide-back'), { once: true });
+    }
+
+    function fillHint(el) {
+      document.getElementById('chatInput').value = el.textContent;
+      document.getElementById('chatInput').focus();
+    }
+
+    function sendMessage() {
+      const input   = document.getElementById('chatInput');
+      const history = document.getElementById('chatHistory');
+      const text    = input.value.trim();
+      if (!text) return;
+
+      // Enter focus mode on first send
+      enterFocus();
+
+      const userMsg = document.createElement('div');
+      userMsg.className = 'chat-msg user';
+      userMsg.innerHTML = `<div class="chat-bubble">${text}</div><span class="chat-avatar">You</span>`;
+      history.appendChild(userMsg);
+      input.value = '';
+      history.scrollTop = history.scrollHeight;
+
+      setTimeout(() => {
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'chat-msg ai';
+        aiMsg.innerHTML = `<span class="chat-avatar">AI</span><div class="chat-bubble typing">Analyzing <em>amazon_sales.csv</em>…</div>`;
+        history.appendChild(aiMsg);
+        history.scrollTop = history.scrollHeight;
+      }, 400);
+    }
+
+    document.getElementById('chatInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') sendMessage();
+    });
+  </script>
+
+</body>
+</html>
