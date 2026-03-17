@@ -1,0 +1,6 @@
+#for installing all these packages "pip install -r requirements.txt" 
+fastapi
+google-generativeai 
+uvicorn 
+pandas
+python-dotenv 
