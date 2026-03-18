@@ -113,3 +113,4 @@ def upload(file:UploadFile=File(...)):
     df=pd.read_csv(file.file,encoding="latin1")
     df.to_sql("sales",new,if_exists="replace",index=False)
     return {"message":"Dataset uploaded successfully"}
+#Final version some changes are still to be made but works
