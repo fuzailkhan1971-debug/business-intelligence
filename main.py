@@ -48,6 +48,8 @@ Rules:
 - Single line SQL
 - Use exact column names
 - Always alias aggregations with AS (e.g. SUM(...) AS total_revenue)
+- Q1 = Jan-Mar, Q2 = Apr-Jun, Q3 = Jul-Sep, Q4 = Oct-Dec  
+- order_date format is YYYY-MM-DD  
 
 Question: {question}
 """
