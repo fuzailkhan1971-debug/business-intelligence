@@ -5,7 +5,6 @@ from dotenv import load_dotenv #hidden key loading
 import os #reads API key
 from google import genai#gemini
 from fastapi import UploadFile,File
-new=sqlite3.connect("amazon_sales.db",check_same_thread=False)
 
 
 
@@ -24,6 +23,7 @@ def run_query(sql_query):
     try:
         print("RUNNING SQL",sql_query)
         result = pd.read_sql_query(sql_query, new)
+        result = result.where(pd.notnull(result), None)
         return result.to_dict(orient="records")
     except Exception as e:
         print("SQL ERROR:",e)
@@ -39,8 +39,7 @@ Table: sales
 Columns:
 order_date, product_id, product_category, price,
 discount_percent, quantity_sold, customer_region,
-payment_method, rating, review_count,
-discounted_price, total_revenue
+payment_method, rating, review_count
 
 Rules:
 - Only SELECT
@@ -48,6 +47,7 @@ Rules:
 - No ```sql
 - Single line SQL
 - Use exact column names
+- Always alias aggregations with AS (e.g. SUM(...) AS total_revenue)
 
 Question: {question}
 """
@@ -94,9 +94,8 @@ def ask(question: str):
     except Exception as e:
         print("ERROR:", e)
       #fallback
-        safe_sql = """SELECT product_category, SUM(total_revenue) as total_revenue
-        FROM sales
-        GROUP BY product_category"""
+        safe_sql ="""SELECT product_category, SUM(price * quantity_sold) as total_revenue
+        FROM sales GROUP BY product_category"""
         result = run_query(safe_sql)
 
         return {
@@ -113,4 +112,17 @@ def upload(file:UploadFile=File(...)):
     df=pd.read_csv(file.file,encoding="latin1")
     df.to_sql("sales",new,if_exists="replace",index=False)
     return {"message":"Dataset uploaded successfully"}
-#Final version some changes are still to be made but works
+
+@app.get("/columns")
+def get_columns():
+    cursor = new.execute("PRAGMA table_info(sales)")
+    columns = [row[1] for row in cursor.fetchall()]
+    return {"columns": columns}
+
+
+@app.get("/loadcsv")
+def load_csv():
+    df = pd.read_csv("amazon_sales.csv", encoding="latin1")
+    df = df.dropna(how="all")
+    df.to_sql("sales", new, if_exists="replace", index=False)
+    return {"message": "loaded", "columns": list(df.columns)}
